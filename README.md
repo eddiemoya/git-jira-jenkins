@@ -57,6 +57,7 @@ Note: This only works for staging at the moment.
 `git pdp deploy <environment>`
 
 Note: Just to repeat - the only valid environment at the moment is "staging"
+Note: This also does not handle any pdp-script changes, only pdp-web changes
 
 
 
