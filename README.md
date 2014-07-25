@@ -1,5 +1,6 @@
 ## Setup
 `git clone git@github.com:eddiemoya/git-jira-jenkins.git ~/git-jira-jenkins`
+
 `git config --global alias.pdp '!. ~/git-jira-jenkins/git-pdp.sh'`
 
 
