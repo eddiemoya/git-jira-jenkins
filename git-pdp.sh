@@ -50,7 +50,7 @@ source $DIR/helpers.sh;
 # Configs
 auto_merge_release_jiras=true;
 origin_branches_only=true;
-ask_for_missing_branch=true;
+ask_for_missing_branch=true; # TODO: Setting this to false causes branch lookups to fail.
 
 #colors
 attention=${bred};
@@ -76,7 +76,7 @@ merged=();
 function set_creds {
 
     if [ -z "$user" ]; then
-        read -p "/n${question}[?] JIRA Username: ${reset}" user;
+        read -p "${question}[?] JIRA Username: ${reset}" user;
         echo "/n";
     fi
 
