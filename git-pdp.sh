@@ -1,10 +1,13 @@
-#!/bin/sh
+#!/bin/bash
 
 
 DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd )"
 
 source $DIR/set_vars.sh;
 source $DIR/helpers.sh;
+source $DIR/git-pdp-jira.sh;
+source $DIR/git-pdp-merge.sh;
+source $DIR/git-pdp-deploy.sh;
 
 
 ##
@@ -45,7 +48,8 @@ source $DIR/helpers.sh;
 
 
 # JIRA Username
-# user="emoya1";
+user="emoya1";
+password="Jeskimo1";
 
 # Configs
 auto_merge_release_jiras=true;
@@ -77,13 +81,10 @@ function set_creds {
 
     if [ -z "$user" ]; then
         read -p "${question}[?] JIRA Username: ${reset}" user;
-        echo "/n";
     fi
 
     if [ -z "$password" ]; then
-
         read -s -p "${question}[?] JIRA Password (${user}): ${reset}" password;
-        echo "/n";
     fi
 }
 
@@ -99,61 +100,22 @@ function complete_jira_id
 
         echo $jira_id;
 }
-##
-# Checks for conflicts.
-# If conflicts, back out merge, display error messege, and add to $had_conflicts array.
-# If no conflicts, perform merge, add to $merged array.
-##
-function do_merge {
-	git merge --squash --quiet $branch > /dev/null;
 
-	local has_conflicts=$(git status --porcelain | grep "UU");
-    local merged_files=$(git status --porcelain);
+function autocomplete_jira_name {
+    local prefix=$1;
+    local id=$2;
 
-	if [ -n "$has_conflicts" ]; then
+    if ! [[ $id =~ $prefix-.* ]]; then
+        id="${prefix}-${id}";
+    fi
 
-        echo ${has_conflicts} | sed 's/UU/\'$'\nUU/g';
-        
-        echo "\n${attention}[!] Branch has conflicts. Resetting back to HEAD and moving to the next JIRA${reset}";
-        git reset --hard HEAD;
-
-        printf "${question}[?] Submit a comment explaining the conflict? [y/n]: ${reset}";
-        read comment_answer;
-
-        if [[ $comment_answer == "y" ]]; then
-            local formatted_conflicts=$(echo ${has_conflicts} | sed 's/UU/\'$'\\n  UU/g');
-            local jcomment="The branch *${branch}* was found to have conflicts in the following file(s): ${formatted_conflicts}";
-            send_comment $jira_name $jcomment;
-        fi
-
-        
-        local conflicts=$(echo $has_conflicts | sed 's/UU/\'$'\n     UU/g')
-
-        had_conflicts+=("* $comment$conflicts\n");
-		
-	else
-        if [ -n "$merged_files" ]; then
-            git add --all; # needed in cases where files have been deleted
-    		git commit -m "$(echo $comment)";
-            merged+=("* $comment\n");
-        else
-            echo "${problem}[!] Nothing to merge, issue skipped.${reset}";
-            skipped+=("* $comment\n");
-        fi
-	fi
+    echo $id;
 }
 
-function send_comment {
-    local id="$1";
-    local jira_comment="${@:2}";
-
-    set_creds;
-
-    echo "${update}[.] Sending Comment...\n${reset}";
-    curl -D -s -u $user:$password -X POST --data "{\"body\": \"${jira_comment}\"}" -H "Content-Type: application/json" https://obujira.searshc.com/jira/rest/api/2/issue/$id/comment > /dev/null
-    echo "${good}[+] Comment Sent\n${reset}";
-
-    echo "${id} ${jira_comment}";
+function fetch {
+    echo "${update}";
+    git fetch --all;
+    echo "${reset}";
 }
 
 ##
@@ -177,7 +139,7 @@ function check_branch_exists {
 
     if [ "${jira_branch}" == "null" ]; then
 
-        open_tabs $jira_id;
+        open_jira $jira_id;
 
         if [ "$ask_for_missing_branch" = true ]; then
             
@@ -224,27 +186,7 @@ function check_branch_exists {
 }
 
 
-function get_jira {
-    
-    local jira_slug=$1;
 
-    if [[ $jira_slug =~ PDP-.*  ]]; then
-        jira_slug="${jira_slug}";
-    else
-        jira_slug="PDP-${jira_slug}";
-    fi
-
-    set_creds;
-    echo
-    echo "\n${update}[.] Fetching JIRA Issue: ${jira_slug}...${reset}";
-
-    local jira_properties="{git_branch: .fields.customfield_14267, summary: .fields.summary, assignee: .fields.assignee.displayName, name: .key, priority: .fields.priority.name}";
-
-    jira=$(curl -s -u $user:$password https://obujira.searshc.com/jira/rest/api/2/issue/$jira_slug | jq "${jira_properties}");
-    # echo ${jira_properties};
-    # echo ${jira};
-
-}
 
 function get_jira_properties {
      
@@ -252,28 +194,22 @@ function get_jira_properties {
     jira_title=$(echo $jira | jq '.summary');
     jira_priority=$(echo $jira | jq '.priority' | tr -d '\"');
     jira_branch=$(echo $jira | jq '.git_branch' | tr -d '\"' | sed -e 's/  *$//');
+    jira_status=$(echo $jira | jq '.status' | tr -d '\"');
+
+    jira_assignee="$(echo $jira | jq '.assignee' | tr -d '\"')";
+    jira_reporter="$(echo $jira | jq '.assignee' | tr -d '\"')";
+    jira_delivery_lead="$(echo $jira | jq '.delivery_lead' | tr -d '\"')";
+    jira_engineer="$(echo $jira | jq '.engineer' | tr -d '\"')";
+    jira_engineer_username="$(echo $jira | jq '.engineer_username' | tr -d '\"')";
 
     comment="[${jira_name}] (${jira_priority}) ${jira_title}";
+
 }
-
-function autocomplete_jira_name {
-    local prefix=$1;
-    local id=$2;
-
-    if ! [[ $id =~ $prefix-.* ]]; then
-        id="${prefix}-${id}";
-    fi
-
-    echo $id;
-}
-
 
 function get_jiras {
 
     local cont;
-    echo "${update}";
-    git fetch --all;
-    echo "${reset}";
+    fetch;
 
     for jira_number in "$@"
     do
@@ -325,23 +261,7 @@ function get_jiras {
     echo "${bold}${update}[.]================= Report =================[.]${reset}\n";
 }
 
-function get_release_jiras
-{
-    set_creds;
-    echo "${update}[.] Fetching Release Candidates from JIRA...${reset}";
-
-    local jira_properties=".issues[].key";
-    local response=$(curl -s -u $user:$password https://obujira.searshc.com/jira/rest/api/2/search?jql=filter=79520 | jq "${jira_properties}" | tr -d '"');
-
-    # local issue_count=$(echo $response | jq '.issues[].key' | tr -d '"');
-    echo "${good}[+] Found Release Candidates...${reset}";
-    echo "${good}${response[@]}${good}";
-
-    get_jiras ${response};
-    # echo $response | jq "$jira_properties";
-}
-
-function open_tabs
+function open_jira
 { 
     for jira_number in "$@"
     do
@@ -350,9 +270,22 @@ function open_tabs
     done
 }
 
+function open_job
+{
+    local job=$1;
+    open_tab "${jenkins}job/${job}";
+}
+
+function open_tab 
+{
+    local url=$1;
+    open -a "Google Chrome" $url;
+}
+
+
 function checkout_branch {
 
-    local jira_id="$(autocomplete_jira_name "PDP" "2356")";
+    local jira_id="$(autocomplete_jira_name "PDP" $1)";
 
     get_jira $jira_id;
 
@@ -361,29 +294,18 @@ function checkout_branch {
     git checkout $jira_branch;
 }
 
-
-function deploy {
-    local env="$1";
-
-    if [[ $env == "staging" ]]; then
-        echo "${update}[.] Pushing release branch to origin...${reset}";
-        git push -f origin release;
-
-        echo "${update}[.] Starting Jenkins job: PDP_Web_Build_STAG..\n\n${reset}";
-
-        java -jar ${DIR}/jenkins-cli.jar -s http://obuci301p.dev.ch3.s.com:8180/jenkins/ build -s -v PDP_Web_Build_STAG
-
-    fi
-}
-
 case "$1" in 
     (merge) get_jiras "${@:2}";;
     (lookup) get_jira $2;;
     (release) get_release_jiras;;
-    (open) open_tabs "${@:2}";;
+    (open) open_jira "${@:2}";;
     (comment) send_comment "${@:2}" ;;
     (checkout) checkout_branch $2;;
     (deploy) deploy "${@:2}";;
+    (setup) setup "${@:2}";;
+    (show) show_jira $2;;
+    (trans) perform_transition "${@:2}";;
+    (assign) assign_jira "${@:2}";;
     (*) get_jira $2;;
 esac
 

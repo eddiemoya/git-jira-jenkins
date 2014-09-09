@@ -24,10 +24,20 @@ function set_colors_vars
 
 	#Resets
 	reset=$(tput sgr0)             # Reset
-
 }
 
+function set_uris {
+	uri_jira_api="https://obujira.searshc.com/jira/rest/api/2/issue/";
+	uri_jenkins_api="http://obuci301p.dev.ch3.s.com:8180/jenkins/";
+}
 
+function set_transitions {
+	transition_deployed_staging="761";
+	transition_deployed_prod="";
+	transition_build_failed="";
+}
 
+set_transitions;
+set_uris;
 set_colors_vars;
 
