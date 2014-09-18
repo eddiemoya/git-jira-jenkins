@@ -15,30 +15,22 @@ source $DIR/git-pdp-deploy.sh;
 ## Installation ##
 # > git clone https://gist.github.com/1367d0aae9e059a57ebf.git ~/git-jira.sh
 # > git config --global alias.jira '!. ~/git-jira.sh'
-##
+#
 
 ## Commands ##
-#
-# General Usage:
-# git jira <command> <jira_id>
-# * Note: If no command is given, defaults to "lookup".
-# * Note: All JIRA_ID inputs can be prefixed with PDP- or be just the number.
-#
-# Command: git jira lookup <jira_id>
-# Description: Outputs simplified version of JIRA API output for either a single jira or a space delimited list of JIRAs
-# 
-# Command: git jira merge <jira_id> (<jira_id> <jira_id> ...)
-# Description: Takes a space delimited list of jira ID's (or single jira), 
-#  looks it up via the API and tries to merge its branch and automatically builds a commit message.
-#  Rejects merge conflicts. Keeps track of rejected jiras or those without branches. Reports success/failures 
-#  after the final jira is completed.
-#
-# Command: git jira release
-# Takes no parameters. Looks for a list of potential JIRAs from a filter in JIRA - passes the whole list to the "git jira merge" command.
-# 
 
-# 
-##
+# git pdp setup <release|prod>
+# Sets up the master or release branch to get it ready for the next release
+
+# git pdp release 
+# Grabs all issues in Queued for Staging, merges each one into the *current branch* - run pdp setup release first!
+
+# git merge <issue> <issue> <issue> ... 
+# Pass PDP-#### or just #### , merges each issue passed.
+
+# git pdp deploy <staging|prod>
+# Deploys the master branch to prod, or the release branch to staging. 
+# Note: With prod, there are portions that can not be triggered via API, and must done in the browser.
 
 ## TODO ##
 # * 
@@ -47,9 +39,9 @@ source $DIR/git-pdp-deploy.sh;
 ##
 
 
-# JIRA Username
-user="emoya1";
-password="Jeskimo1";
+# JIRA Username - uncomment and provide values to avoid having to enter them each you use the script.
+user="";
+password="";
 
 # Configs
 auto_merge_release_jiras=true;
@@ -209,7 +201,7 @@ function get_jira_properties {
 function get_jiras {
 
     local cont;
-    fetch;
+    # fetch;
 
     for jira_number in "$@"
     do
@@ -279,7 +271,7 @@ function open_job
 function open_tab 
 {
     local url=$1;
-    open -a "Google Chrome" $url;
+    open -a "Google Chrome" "${url}";
 }
 
 
@@ -306,7 +298,7 @@ case "$1" in
     (show) show_jira $2;;
     (trans) perform_transition "${@:2}";;
     (assign) assign_jira "${@:2}";;
-    (*) get_jira $2;;
+    (*) $1 "${@:2}";;
 esac
 
 

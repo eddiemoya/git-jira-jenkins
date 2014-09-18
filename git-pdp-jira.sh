@@ -50,13 +50,30 @@ function transition_release_jiras {
 
     if [[ $transition_answer == "y" ]]; then
     
-            local staging_issues=$(git log origin/master..release --pretty=format:"%s" | awk '{print $1}' | tr -d '[]');
+            local staging_issues=$(git log origin/master..release --pretty=format:"%s" | awk '{print $1}' | tr -d '[]' | grep "PDP" );
 
             while read -r issue;
             do
                 echo "Transitioning Issue: ${issue}";
                 perform_transition "${issue}" "761";
             done <<< "$staging_issues";
+    
+    fi
+}
+
+function transition_production_jiras {
+    printf "${question}[?] Transition all the jiras in the this production release? [y/n]: ${reset}"
+    read transition_answer;
+
+    if [[ $transition_answer == "y" ]]; then
+
+        local prod_issues=$(git log origin/master^..origin/master --pretty=format:"%s" | awk '{print $1}' | tr -d '[]' | grep "PDP" );
+
+        while read -r issue;
+        do
+            echo "Transitioning Issue: ${issue}";
+            perform_transition "${issue}" "791";
+        done <<< "$prod_issues";
     
     fi
 }
@@ -73,7 +90,7 @@ function get_jira {
 
 
     set_creds;
-    echo
+
     echo "\n${update}[.] Fetching JIRA Issue: ${jira_slug}...${reset}";
 
     local jira_properties="{ 
