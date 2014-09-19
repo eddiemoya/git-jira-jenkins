@@ -1,7 +1,16 @@
-## Setup
+## Script Setup
 `git clone git@github.com:eddiemoya/git-jira-jenkins.git ~/git-jira-jenkins`
 
 `git config --global alias.pdp '!. ~/git-jira-jenkins/git-pdp.sh'`
+
+## JQ http://stedolan.github.io/jq/
+
+This tool relies heavily on a tool called "jq" to parse JSON at the command line. 
+
+OSX: `brew install jq`
+Everyone else: http://stedolan.github.io/jq/download/
+
+Keep in mind ja needs to be in your PATH for this script to be able to use it.
 
 
 ## Jira Issue ID
