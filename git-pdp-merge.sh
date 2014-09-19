@@ -84,6 +84,7 @@ function setup {
 
     case "$setup_type" in
         (release) release_setup;;
+        (master) prod_setup;;
         (prod) prod_setup;;
     esac
 }
