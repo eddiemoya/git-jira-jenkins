@@ -42,6 +42,8 @@ function deploy_prod {
             open_job "PDP_Web_Deploy_Apache_CH4_PROD";
             # jenkins_build "PDP_Web_Deploy_Apache_CH4_PROD";
             # jenkins_build "PDP_Web_Deploy_Apache_CH3_PROD";
+
+            transition_release_jiras
 }
 
 function deploy {

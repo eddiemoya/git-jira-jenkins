@@ -265,7 +265,7 @@ function open_jira
 function open_job
 {
     local job=$1;
-    open_tab "${jenkins}job/${job}";
+    open_tab "${uri_jenkins_api}job/${job}";
 }
 
 function open_tab 
