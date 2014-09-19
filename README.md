@@ -207,7 +207,7 @@ At this point, anything that was in staging needs to be retested. Recreate the r
 
 The term is misused here, but people will ask for a "hotfix". This is how we do them.
 
-After a rollback, if a developer has found the solution for the problem in production then it maybe reasonable (if time permits, or pressure demands) to deploy the proposed fix to staging **alone** so it can be tested and later deployed to prod. The QA team probably opened a JIRA for the defect, so simply start a new release as normal, and include that issue **alone* in that release. Deploy to release as normal.
+After a rollback, if a developer has found the solution for the problem in production then it maybe reasonable (if time permits, or pressure demands) to deploy the proposed fix to staging **alone** so it can be tested and later deployed to prod. The QA team probably opened a JIRA for the defect, so simply start a new release as normal, and include that issue **alone** in that release. Deploy to release as normal.
 
 As with the revert, anything that had been in staging will be wiped out - and will afterward need to be retested in a newly created release branch.
 
