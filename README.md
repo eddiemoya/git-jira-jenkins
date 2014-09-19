@@ -3,6 +3,8 @@
 
 `git config --global alias.pdp '!. ~/git-jira-jenkins/git-pdp.sh'`
 
+This script will frequently interact with jenkins and jira. To avoid getting repeatedly prompted for username and password, fill in their values in the `set_vars.sh` file of this script. You can set one of them, or both, or neither. You will be prompted each time for which ever is blank.
+
 ## JQ http://stedolan.github.io/jq/
 
 This tool relies heavily on a tool called "jq" to parse JSON at the command line. 

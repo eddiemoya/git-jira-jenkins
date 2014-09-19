@@ -1,3 +1,8 @@
+# JIRA Username - uncomment and provide values to avoid having to enter them each you use the script.
+user="";
+password="";
+
+
 function set_colors_vars
 {
 	underline=$(tput sgr 0 1)          # Underline

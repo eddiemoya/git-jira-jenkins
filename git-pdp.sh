@@ -39,10 +39,6 @@ source $DIR/git-pdp-deploy.sh;
 ##
 
 
-# JIRA Username - uncomment and provide values to avoid having to enter them each you use the script.
-user="";
-password="";
-
 # Configs
 auto_merge_release_jiras=true;
 origin_branches_only=true;
