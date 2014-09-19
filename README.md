@@ -106,7 +106,7 @@ Options for <environment> include `prod` and `staging`
 *Note: This works fully for staging deploys. However production deploys are not fully automatable. The artifactory release staging which creates the actual version numbers must be triggered through the browser, as do the final deployments to CH3 and CH4 of those newly created version numbers. The script will try to open tabs for these jobs at the appropriate time for each of the browser-based actions - howevre as noted in the "open" command's notes - it actually only works on OSX (for now).*
 
 
-### Additiona functions
+### Additional functions
 
 ```
 git pdp transition_release_jiras
