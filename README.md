@@ -67,6 +67,15 @@ Note: This works fully for staging deploys. However production deploys are not f
 Options for <environment> include "prod" and "staging"
 Note: This also does not handle any pdp-script changes, only pdp-web changes
 
+#### Additiona functions
+
+`git pdp transition_release_jiras`
+Magically figures out the issues in latest release on the origin/release branch - and transitions them in JIRA to the "In Staging" status.
+
+`git pdp transition_production_jiras`
+See above - same but transition to the "In Production" status.
+
+
 
 
 
