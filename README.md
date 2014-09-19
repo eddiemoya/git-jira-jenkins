@@ -51,7 +51,7 @@ Attemtps to lookup a JIRA's branch from the API and tries to check it out locall
 `git pdp checkout <issue_id>`
 
 ### Open
-Opens any number of JIRA issies in a new tab in your chrome browser (probably OSX specific, maybe some other *nix)
+Opens any number of JIRA issies in a new tab in your chrome browser (Only works in OSX)
 
 #### Usage:
 `git pdp open <issue_id> <issue_id> <issue_id> ...`
@@ -59,7 +59,7 @@ Opens any number of JIRA issies in a new tab in your chrome browser (probably OS
 ### Deploy
 Force pushes the release branch to origin, and triggers the Jenkins job responsible for deploying the release branch to the staging environment. 
 
-Note: This works fully for staging deploys. However production deploys are not fully automatable. The artifactory release staging which creates the actual version numbers must be triggered through the browser, as do the final deployments to CH3 and CH4 of those newly created version numbers - the script will prompt you at the appropriate time for each of the browser-based actions.
+Note: This works fully for staging deploys. However production deploys are not fully automatable. The artifactory release staging which creates the actual version numbers must be triggered through the browser, as do the final deployments to CH3 and CH4 of those newly created version numbers. The script will try to open tabs for these jobs at the appropriate time for each of the browser-based actions - howevre as noted in the "open" command's notes - it actually only works on OSX (for now).
 
 #### Usage:
 `git pdp deploy <environment>`
