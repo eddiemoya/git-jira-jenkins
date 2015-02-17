@@ -67,14 +67,15 @@ function release_setup {
 
     if [[ $cont == "y" ]]; then
         fetch;
-        git checkout release
-        git reset --hard origin/master
+        git checkout release;
+        git reset --hard origin/master;
     fi
 }
 
 function prod_setup {
         fetch;
         git checkout master;
+        git reset --hard origin/master;
         git merge --ff-only origin/master;
         git merge --no-ff origin/release;
 }

@@ -118,7 +118,7 @@ function get_release_jiras
     echo "${update}[.] Fetching Release Candidates from JIRA...${reset}";
 
     local jira_properties=".issues[].key";
-    local response=$(curl -s -u $user:$password "https://obujira.searshc.com/jira/rest/api/2/search?jql=project%20%3D%20PDP%20AND%20status%20%3D%20%22Queued%20for%20Staging%22%20AND%20sprint%20in%20openSprints()%20ORDER%20BY%20priority%20DESC" | jq "${jira_properties}" | tr -d '"');
+    local response=$(curl -s -u $user:$password "https://obujira.searshc.com/jira/rest/api/2/search?jql=project%20%3D%20PDP%20AND%20status%20%3D%20%22Queued%20for%20Staging%22%20AND%20sprint%20in%20openSprints()%20ORDER%20BY%20priority%20DESC%2C%20cf%5B12762%5D%20DESC" | jq "${jira_properties}" | tr -d '"');
 
     # local issue_count=$(echo $response | jq '.issues[].key' | tr -d '"');
     echo "${good}[+] Found Release Candidates...${reset}";

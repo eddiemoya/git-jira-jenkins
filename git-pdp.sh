@@ -142,7 +142,7 @@ function check_branch_exists {
         branch=${jira_branch};
     fi
 
-    branch_exists=$(git branch -l --list ${branch});
+    branch_exists=$(git branch -r --list ${branch});
 
     if [ -n "$branch_exists" ] && [ !"$origin_branches_only" ]; then
     	echo " ${good}[+] Branch Found Locally:${branch_exists}${reset}";
